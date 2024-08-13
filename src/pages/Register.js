@@ -151,8 +151,33 @@ function Register() {
       setSuccess('Registration successful!');
       setError(null);
     } catch (error) {
-      console.error('Error registering:', error);
-      setError('Registration failed. Please try again.');
+      // Check if error response exists
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+  
+        // Customize error messages based on response data
+        if (error.response.status === 400) {
+          // Example: Handle specific validation errors
+          const errors = error.response.data.errors; // Adjust based on your backend response structure
+          if (errors) {
+            setError(Object.values(errors).join(', ')); // Display all validation errors
+          } else {
+            setError('Bad request. Please check your input.');
+          }
+        } else {
+          setError('Registration failed. Please try again.');
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error('Error request data:', error.request);
+        setError('No response from server. Please try again later.');
+      } else {
+        // Something happened while setting up the request
+        console.error('Error message:', error.message);
+        setError('An error occurred. Please try again.');
+      }
       setSuccess(null);
     }
   };
